@@ -8,15 +8,10 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Authentication.Api.Data;
-using Authentication.Api.Data.Models;
 
-namespace Authentication.Api
+namespace WebApplication1
 {
     public class Startup
     {
@@ -31,16 +26,6 @@ namespace Authentication.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            services.AddDbContext<AuthenticationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MainConnection")));
-            services.AddIdentity<Usuario, IdentityRole>()
-                .AddEntityFrameworkStores<AuthenticationDbContext>()
-                .AddDefaultTokenProviders();
-
-            services.Configure<IdentityOptions>(options =>
-            {
-                options.Password.RequireUppercase = false;
-                options.Password.RequireNonAlphanumeric = false;
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -56,7 +41,6 @@ namespace Authentication.Api
                 app.UseHsts();
             }
 
-            app.ApplicationServices.GetService<IServiceProvider>().CreateScope().ServiceProvider.InitializeDb();
             app.UseHttpsRedirection();
             app.UseMvc();
         }
