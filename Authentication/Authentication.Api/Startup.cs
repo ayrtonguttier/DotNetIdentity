@@ -15,6 +15,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Authentication.Api.Data;
 using Authentication.Api.Data.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Authentication.Api.Auth;
 
 namespace Authentication.Api
 {
@@ -24,12 +28,15 @@ namespace Authentication.Api
         {
             Configuration = configuration;
         }
-
+        SecurityKey key;
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            key = Auth.TokenOption.Key;
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             services.AddDbContext<AuthenticationDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("MainConnection")));
             services.AddIdentity<Usuario, IdentityRole>()
@@ -40,6 +47,22 @@ namespace Authentication.Api
             {
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
+            });
+
+            //services.AddAuthorization(auth =>
+            //{
+            //    auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
+            //        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+            //        .RequireAuthenticatedUser().Build());
+            //});
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters.IssuerSigningKey = key;
+                options.TokenValidationParameters.ValidAudience = TokenOption.Audience;
+                options.TokenValidationParameters.ValidIssuer = TokenOption.Issuer;
+                options.TokenValidationParameters.ValidateLifetime = true;
+                options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(0);
             });
         }
 
@@ -57,6 +80,7 @@ namespace Authentication.Api
             }
 
             app.ApplicationServices.GetService<IServiceProvider>().CreateScope().ServiceProvider.InitializeDb();
+            app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
         }
