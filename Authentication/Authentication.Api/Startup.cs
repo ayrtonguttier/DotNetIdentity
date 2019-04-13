@@ -64,6 +64,15 @@ namespace Authentication.Api
                 options.TokenValidationParameters.ValidateLifetime = true;
                 options.TokenValidationParameters.ClockSkew = TimeSpan.FromMinutes(0);
             });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("administration", policy =>
+                {
+                    policy.AuthenticationSchemes = new List<string> { JwtBearerDefaults.AuthenticationScheme };
+                    policy.RequireRole("admin");
+                } );
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

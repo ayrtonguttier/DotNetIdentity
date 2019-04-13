@@ -6,11 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Security.Principal;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Authentication.Api.Controllers
@@ -27,11 +23,9 @@ namespace Authentication.Api.Controllers
         }
 
         [HttpGet]        
-        [Authorize(AuthenticationSchemes = "Bearer")]
+        [Authorize("administration")]
         public IEnumerable<Usuario> GetUsers()
-        {
-
-
+        { 
             return manager.Users;
         }
 
@@ -70,13 +64,17 @@ namespace Authentication.Api.Controllers
                 return Unauthorized();
 
 
+            var roles = await manager.GetRolesAsync(user);
+
             try
             {
                 var handler = new JwtSecurityTokenHandler();
                 var credentials = Auth.TokenOption.SigningCredentials;
-                ClaimsIdentity identity = new ClaimsIdentity(new GenericIdentity(user.UserName));
 
+                ClaimsIdentity identity = new ClaimsIdentity(user.UserName);
 
+                foreach (var role in roles)
+                    identity.AddClaim(new Claim(ClaimTypes.Role, role));
 
                 var tokenDate = DateTime.Now;
 

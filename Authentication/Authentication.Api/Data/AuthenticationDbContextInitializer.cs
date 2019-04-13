@@ -19,6 +19,17 @@ namespace Authentication.Api.Data
 
             dbContext.Database.EnsureCreated();
 
+            if(!dbContext.Roles.Any(x=> x.Name == "admin"))
+            {
+                var manager = applicationBuilder.GetService<RoleManager<IdentityRole>>();
+
+                var adminRole = new IdentityRole();
+                adminRole.Name = "admin";
+
+                Task.WaitAll(manager.CreateAsync(adminRole));
+
+            }
+
             if (!dbContext.Users.Any())
             {
                 var manager = applicationBuilder.GetService<UserManager<Usuario>>();
@@ -30,7 +41,11 @@ namespace Authentication.Api.Data
                     SecurityStamp = Guid.NewGuid().ToString()
                 };
 
-                manager.CreateAsync(usuario, "admin@@123");
+
+
+                Task.WaitAll(manager.CreateAsync(usuario, "admin@@123"));
+
+                Task.WaitAll(manager.AddToRoleAsync(usuario, "admin"));
             }
         }
 
