@@ -15,39 +15,45 @@ namespace Authentication.Api.Data
 
         public static void InitializeDb(this IServiceProvider applicationBuilder)
         {
-            AuthenticationDbContext dbContext = applicationBuilder.GetService<AuthenticationDbContext>();
-
-            dbContext.Database.EnsureCreated();
-
-            if(!dbContext.Roles.Any(x=> x.Name == "admin"))
+            try
             {
-                var manager = applicationBuilder.GetService<RoleManager<IdentityRole>>();
+                AuthenticationDbContext dbContext = applicationBuilder.GetService<AuthenticationDbContext>();
 
-                var adminRole = new IdentityRole();
-                adminRole.Name = "admin";
+                dbContext.Database.EnsureCreated();
 
-                Task.WaitAll(manager.CreateAsync(adminRole));
-
-            }
-
-            if (!dbContext.Users.Any())
-            {
-                var manager = applicationBuilder.GetService<UserManager<Usuario>>();
-
-                Usuario usuario = new Usuario()
+                if (!dbContext.Roles.Any(x => x.Name == "admin"))
                 {
-                    Email = "adm@aguttier.com",
-                    UserName = "admin",
-                    SecurityStamp = Guid.NewGuid().ToString()
-                };
+                    var manager = applicationBuilder.GetService<RoleManager<IdentityRole>>();
+
+                    var adminRole = new IdentityRole();
+                    adminRole.Name = "admin";
+
+                    Task.WaitAll(manager.CreateAsync(adminRole));
+
+                }
+
+                if (!dbContext.Users.Any())
+                {
+                    var manager = applicationBuilder.GetService<UserManager<Usuario>>();
+
+                    Usuario usuario = new Usuario()
+                    {
+                        Email = "adm@aguttier.com",
+                        UserName = "admin",
+                        SecurityStamp = Guid.NewGuid().ToString()
+                    };
 
 
 
-                Task.WaitAll(manager.CreateAsync(usuario, "admin@@123"));
+                    Task.WaitAll(manager.CreateAsync(usuario, "admin@@123"));
 
-                Task.WaitAll(manager.AddToRoleAsync(usuario, "admin"));
+                    Task.WaitAll(manager.AddToRoleAsync(usuario, "admin"));
+                }
+            }
+            catch
+            {
+
             }
         }
-
     }
 }
