@@ -22,10 +22,10 @@ namespace Authentication.Api.Controllers
             this.manager = manager;
         }
 
-        [HttpGet]        
+        [HttpGet]
         [Authorize("administration")]
         public IEnumerable<Usuario> GetUsers()
-        { 
+        {
             return manager.Users;
         }
 
@@ -90,7 +90,11 @@ namespace Authentication.Api.Controllers
                 });
 
 
-                return Ok(handler.WriteToken(securityToken));
+                return Ok(new
+                {
+                    token = handler.WriteToken(securityToken),
+                    expires = tokenDate + Auth.TokenOption.ExpiresSpan
+                });
             }
             catch (Exception ex)
             {

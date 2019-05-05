@@ -8,14 +8,20 @@ services:
       dockerfile: Authentication.Api/Dockerfile
   mssql:
     image: "mcr.microsoft.com/mssql/server"
-    environment: 
+    environment:
       SA_PASSWORD: "MyPassw0rd"
       ACCEPT_EULA: "Y"
   lb:
     image: dockercloud/haproxy
     links:
       - authentication.api
-    ports: 
-      - "80:80"
+    ports:
+      - "9000:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  front:    
+    build:
+      context: .
+      dockerfile: AuthenticationFront/Dockerfile    
+    ports:
+      - "8080:4200"

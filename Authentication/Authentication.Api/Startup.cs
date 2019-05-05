@@ -43,6 +43,14 @@ namespace Authentication.Api
                 .AddEntityFrameworkStores<AuthenticationDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.AddCors(options => {
+                options.AddPolicy("Local", builder => {
+                    builder.WithOrigins("http://localhost:4200")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            });
+
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireUppercase = false;
@@ -88,6 +96,7 @@ namespace Authentication.Api
                 app.UseHsts();
             }
 
+            app.UseCors("Local");
             app.ApplicationServices.GetService<IServiceProvider>().CreateScope().ServiceProvider.InitializeDb();
             app.UseAuthentication();
             app.UseHttpsRedirection();

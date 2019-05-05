@@ -1,0 +1,23 @@
+/* You can add global styles to this file, and also import other style files */
+.teste{
+    background-color: #181818;    
+}
+
+.teste a{
+    color: #25FE15;
+}
+
+
+.login{
+    width: 400px;
+    margin: 100px auto;    
+}
+
+.btn-login{
+    margin: 15px auto;    
+    float: right;
+}
+
+.alerta{
+    display: block;
+}
